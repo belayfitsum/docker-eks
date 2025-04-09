@@ -15,6 +15,6 @@ spec:
     spec:
       containers:
         - name: express-app
-          image: <will-be-overwritten>
+          image: 977952712667.dkr.ecr.eu-central-1.amazonaws.com/express-app-repo:latest
           ports:
             - containerPort: 8080
