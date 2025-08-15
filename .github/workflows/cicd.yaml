@@ -4,6 +4,8 @@ on:
   push:
     branches: [main]
 
+# No CI part like linting,formatting and also make sure infra is ready. This can be added as job before deploy job
+
 jobs:
   deploy:
     name: Build, Push to ECR & Deploy to EKS
