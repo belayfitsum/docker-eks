@@ -1,4 +1,4 @@
-# Specify a base image
+# Specify a base image. Pulled from node repository and an alpine tag 
 FROM node:18-alpine
 
 WORKDIR /usr/app
