@@ -9,7 +9,7 @@ on:
 jobs:
   deploy:
     name: Build, Push to ECR & Deploy to EKS
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest # configuring the runner which executes my jobs
 
     env:
       IMAGE_TAG: ${{ github.sha }}
@@ -19,7 +19,7 @@ jobs:
 
     steps:
       - name: Checkout source
-        uses: actions/checkout@v3
+        uses: actions/checkout@v3 # telling the runner to use this action to copy my code to the runner file system
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
