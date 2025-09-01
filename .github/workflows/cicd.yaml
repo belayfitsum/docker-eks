@@ -5,11 +5,39 @@ on:
     branches: [main]
 
 # No CI part like linting,formatting and also make sure infra is ready. This can be added as job before deploy job
+# Let's work on the infrastructure setup part
 
 jobs:
-  deploy:
+  terraform-infra-wf:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: terraform
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v3
+
+    - name: Install Terraform
+      uses: hashicorp/setup-terraform@v2
+
+    - name: Initialize Terraform
+      run: terraform init
+
+    - name: Validate Terraform
+      run: terraform validate
+
+    - name: Apply Terraform Changes
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      run: terraform apply -auto-approve
+
+
+  build-wf:
     name: Build, Push to ECR & Deploy to EKS
     runs-on: ubuntu-latest # configuring the runner which executes my jobs
+    needs: terraform-infra-wf
 
     env:
       IMAGE_TAG: ${{ github.sha }}
@@ -37,15 +65,23 @@ jobs:
           docker build -t $ECR_REPOSITORY:$IMAGE_TAG .
           docker tag $ECR_REPOSITORY:$IMAGE_TAG ${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:$IMAGE_TAG
 
-      - name: Push Docker image to ECR
+      - name: Push Docker image to ECR # login to the docker CLI inside the runner
         run: |
           docker push ${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:$IMAGE_TAG
 
-      - name: Update Kubeconfig
-        run: |
-          aws eks update-kubeconfig --name $EKS_CLUSTER_NAME --region $AWS_REGION
+  #     - name: Update Kubeconfig
+  #       run: |
+  #         aws eks update-kubeconfig --name $EKS_CLUSTER_NAME --region $AWS_REGION
 
-      - name: Deploy to EKS
-        run: |
-          kubectl set image deployment/express-app-deployment express-app=${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:$IMAGE_TAG
-          kubectl rollout status deployment/express-app-deployment
+  #     - name: Deploy to EKS
+  #       run: |
+  #         kubectl set image deployment/express-app-deployment express-app=${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:$IMAGE_TAG
+  #         kubectl rollout status deployment/express-app-deployment
+
+  # deploy-wf:
+  #   name: Deploy to EKS
+  #   runs-on: ubuntu-latest # each jon needs own runner
+  #   needs: build-wf
+
+
+
