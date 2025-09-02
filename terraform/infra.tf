@@ -46,8 +46,8 @@ resource "aws_default_subnet" "subnet_az1" {
 #   availability_zone = data.aws_availability_zones.aws_availability_zones.names[1]
 # }
 
-# EKS Cluster Setup
-# module "eks" {
+# EKS Cluster Setup- terraform module which creates EKS kubernetets resources.
+# module "eks" { 
 #   source  = "terraform-aws-modules/eks/aws"
 #   version = "~> 19.0"
 
