@@ -46,8 +46,8 @@ resource "aws_default_subnet" "subnet_az1" {
 #   availability_zone = data.aws_availability_zones.aws_availability_zones.names[1]
 # }
 
-# EKS Cluster Setup- terraform module which creates EKS kubernetets resources.
-# module "eks" { 
+# # EKS Cluster Setup- terraform module which creates EKS kubernetets resources.
+# module "eks" {
 #   source  = "terraform-aws-modules/eks/aws"
 #   version = "~> 19.0"
 
@@ -70,7 +70,7 @@ resource "aws_default_subnet" "subnet_az1" {
 #   }
 # }
 
-# # Security Group for EC2 (worker nodes)
+# # # Security Group for EC2 (worker nodes)
 # resource "aws_security_group" "ec2_sg" {
 #   vpc_id = aws_default_vpc.default_vpc.id
 
