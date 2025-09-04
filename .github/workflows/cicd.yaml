@@ -6,8 +6,8 @@ on:
       - main
   pull_request:
 
-# No CI part like linting,formatting and also make sure infra is ready. This can be added as job before deploy job
-# Let's work on the infrastructure setup part
+# This workflow has only two jobs [infra preparation and image building- pushing to ecr]. Deploy to Kubernetes job is on its way.
+# Notes: OpenIDConnect OIDC can be used to authenticate github to use aws resources instead of using aws access keys.
 
 jobs:
   terraform-infra-wf:
