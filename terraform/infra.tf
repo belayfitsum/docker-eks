@@ -1,100 +1,54 @@
-terraform {
-  required_providers {
-    aws = {
-      source = "hashicorp/aws"
-    }
-    kubernetes = {
-      source = "hashicorp/kubernetes"
 
-    }
-  }
+# module "vpc" {
+#   source = "terraform-aws-modules/vpc/aws"
 
-  backend "s3" {
-    bucket  = "my-api-test-buck"
-    key     = "infra.tfstate"
-    region  = "eu-central-1"
-    encrypt = true
-  }
-}
+#   name = "eks-vpc"
+#   cidr = "10.0.0.0/16"
+  
+#   azs             = ["eu-central-1a", "eu-central-1b"]
+#   public_subnets  = ["10.0.1.0/24", "10.0.2.0/24"]
+#   enable_nat_gateway = false
+#   enable_vpn_gateway = false
 
-provider "aws" {
-  region = "eu-central-1"
-}
-provider "kubernetes" {
-  config_path = "~/.kube/config"
-}
-
-# Create a default VPC if it doesn't exist
-resource "aws_default_vpc" "default_vpc" {
-  tags = {
-    Name = "eks_vpc"
-  }
-}
-
-#####################################################################
-# create a data source to retrieve all availability zones in a region
-#####################################################################
-
-data "aws_availability_zones" "aws_availability_zones" {}
-
-# Create subnets in AZ1 and AZ2
-resource "aws_default_subnet" "subnet_az1" {
-  availability_zone = data.aws_availability_zones.aws_availability_zones.names[0]
-}
-
-# resource "aws_default_subnet" "subnet_az2" {
-#   availability_zone = data.aws_availability_zones.aws_availability_zones.names[1]
+#   tags = {
+#     "project" = "ci-cd-eks"
+#   }
 # }
 
-# # EKS Cluster Setup- terraform module which creates EKS kubernetets resources.
+# # This creates the EKS cluster and a managed node group.
 # module "eks" {
 #   source  = "terraform-aws-modules/eks/aws"
-#   version = "~> 19.0"
+#   version = "21.1.5"
 
-#   cluster_name    = "my-express-app-eks"
-#   cluster_version = "1.27"
+#   endpoint_public_access  = true   # allow API access from internet
+#   endpoint_private_access = true 
 
-#   cluster_endpoint_public_access = true
-
-#   vpc_id                   = aws_default_vpc.default_vpc.id
-#   subnet_ids               = [aws_default_subnet.subnet_az1.id, aws_default_subnet.subnet_az2.id]
-#   control_plane_subnet_ids = [aws_default_subnet.subnet_az1.id, aws_default_subnet.subnet_az2.id]
-
+#   name  = "my-express-app-eks"
+#   kubernetes_version = "1.29"
+  
+#   vpc_id                   = module.vpc.vpc_id
+#   subnet_ids               = module.vpc.public_subnets
+#   control_plane_subnet_ids = module.vpc.public_subnets
+  
+#   # Configure the managed node group
 #   eks_managed_node_groups = {
 #     express_app_nodes = {
 #       min_size       = 1
-#       max_size       = 1
+#       max_size       = 2 # Changed max_size to allow for scaling
 #       desired_size   = 1
 #       instance_types = ["t3.medium"]
 #     }
 #   }
+
+#   tags = {
+#     "project" = "ci-cd-eks"
+#   }
 # }
 
-# # # Security Group for EC2 (worker nodes)
-# resource "aws_security_group" "ec2_sg" {
-#   vpc_id = aws_default_vpc.default_vpc.id
-
-#   ingress {
-#     from_port   = 22
-#     to_port     = 22
-#     protocol    = "tcp"
-#     cidr_blocks = ["0.0.0.0/0"]
-#   }
-#   ingress {
-#     from_port   = 8080
-#     to_port     = 8080
-#     protocol    = "tcp"
-#     cidr_blocks = ["0.0.0.0/0"]
-#   }
-#   egress {
-#     from_port   = 0
-#     to_port     = 0
-#     protocol    = "-1"
-#     cidr_blocks = ["0.0.0.0/0"]
-#   }
-#   tags = {
-#     Name = "API_Security_Group"
-#   }
+# provider "kubernetes" {
+#   host                   = module.eks.cluster_endpoint
+#   cluster_ca_certificate = base64decode(module.eks.cluster_certificate_authority_data)
+#   token                  = module.eks.cluster_auth_token
 # }
 
 # # Kubernetes Deployment for the Express app
@@ -119,7 +73,7 @@ resource "aws_default_subnet" "subnet_az1" {
 #       spec {
 #         container {
 #           name  = "express-app"
-#           image = "fitsena/web:latest" # Replace with your actual Docker image name
+#           image = "${aws_ecr_repository.express_app_repo.repository_url}:latest" # Replace with your actual Docker image name
 #           port {
 #             container_port = 8080
 #           }
