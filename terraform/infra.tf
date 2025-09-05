@@ -4,7 +4,7 @@
 
 #   name = "eks-vpc"
 #   cidr = "10.0.0.0/16"
-  
+
 #   azs             = ["eu-central-1a", "eu-central-1b"]
 #   public_subnets  = ["10.0.1.0/24", "10.0.2.0/24"]
 #   enable_nat_gateway = false
@@ -25,11 +25,11 @@
 
 #   name  = "my-express-app-eks"
 #   kubernetes_version = "1.29"
-  
+
 #   vpc_id                   = module.vpc.vpc_id
 #   subnet_ids               = module.vpc.public_subnets
 #   control_plane_subnet_ids = module.vpc.public_subnets
-  
+
 #   # Configure the managed node group
 #   eks_managed_node_groups = {
 #     express_app_nodes = {

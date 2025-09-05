@@ -85,34 +85,34 @@ jobs:
         run: |
           docker push ${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:$IMAGE_TAG
 
-  # deploy-wf:
-  #   name: Deploy to EKS
-  #   runs-on: ubuntu-latest # each job needs own runner
-  #   needs: build-wf
+  deploy-wf:
+    name: Deploy to EKS
+    runs-on: ubuntu-latest # each job needs own runner
+    needs: build-wf
 
-  #   env:
-  #     ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
-  #     EKS_CLUSTER_NAME: ${{ secrets.EKS_CLUSTER_NAME }}
-  #     AWS_REGION: ${{ secrets.AWS_REGION }}
+    env:
+      ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
+      EKS_CLUSTER_NAME: ${{ secrets.EKS_CLUSTER_NAME }}
+      AWS_REGION: ${{ secrets.AWS_REGION }}
 
-  #   steps:
+    steps:
 
-  #     - name: Configure AWS credentials
-  #       uses: aws-actions/configure-aws-credentials@v2
-  #       with:
-  #         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-  #         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-  #         aws-region: ${{ env.AWS_REGION }}
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
 
-  #     - name: Update Kubeconfig       
-  #       run: |
-  #         aws eks update-kubeconfig --name $EKS_CLUSTER_NAME --region $AWS_REGION
+      - name: Update Kubeconfig       
+        run: |
+          aws eks update-kubeconfig --name $EKS_CLUSTER_NAME --region $AWS_REGION
 
-  #     - name: Deploy to EKS # pass the image from build-wf, replace the image and wait for the rollout
-  #       run: |
-  #         IMAGE_URI="${{ needs.build-wf.outputs.registry }}/${{ secrets.ECR_REPOSITORY }}:${{ needs.build-wf.outputs.image_tag }}"
-  #         # kubectl set image deployment/express-app-deployment express-app=${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:$IMAGE_TAG
+      - name: Deploy to EKS # pass the image from build-wf, replace the image and wait for the rollout
+        run: |
+          IMAGE_URI="${{ needs.build-wf.outputs.registry }}/${{ secrets.ECR_REPOSITORY }}:${{ needs.build-wf.outputs.image_tag }}"
+          # kubectl set image deployment/express-app-deployment express-app=${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:$IMAGE_TAG
 
-  #         kubectl set image deployment/express-app-deployment express-app=$IMAGE_URI
+          kubectl set image deployment/express-app-deployment express-app=$IMAGE_URI
 
-  #         kubectl rollout status deployment/express-app-deployment
+          kubectl rollout status deployment/express-app-deployment
