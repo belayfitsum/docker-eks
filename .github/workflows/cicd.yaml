@@ -76,7 +76,7 @@ jobs:
 
       - name: Build and push Docker image # login to the docker CLI inside the runner
         env:
-          IMAGE_TAG: ${{ github.sha }} // keep this and use another image tag for simplicity
+          IMAGE_TAG: ${{ github.sha }} # keep this and use another image tag for simplicity
           ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }} # storing the login to ecr step ito a variable so that docker can use it to push 
         run: |
