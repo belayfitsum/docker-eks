@@ -89,8 +89,8 @@ jobs:
           EKS_CLUSTER_NAME: ${{ secrets.EKS_CLUSTER_NAME }}
         run: | # update the kubeconfig to point to the eks cluster
           aws eks update-kubeconfig --name $EKS_CLUSTER_NAME
-          kubectl apply -f k8/deployment.yaml
-          kubectl apply -f k8/service.yaml
+          kubectl apply -f k8s/deployment.yaml
+          kubectl apply -f k8s/service.yaml
 
   # deploy-wf:
   #   name: Deploy to EKS
