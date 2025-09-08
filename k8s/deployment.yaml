@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: express-app
-          image: 977952712667.dkr.ecr.eu-central-1.amazonaws.com/express-app-repo:latest
+          image: 977952712667.dkr.ecr.eu-central-1.amazonaws.com/k8-express-app-cluster:latest
           ports:
             - containerPort: 8080
         
