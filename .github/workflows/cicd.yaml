@@ -60,7 +60,6 @@ jobs:
       - name: Install kubectl
         uses: azure/setup-kubectl@v2.0
         with:
-        version: 'v1.24.0' # default is latest stable
         id: install
 
       - name: Configure AWS credentials
@@ -77,14 +76,13 @@ jobs:
           mask-password: 'false'
 
       - name: Build Docker image # using the git commit sha as an image tag
-
         env:
-        #IMAGE_TAG: ${{ github.sha }} // keep this and use another image tag for simplicity
-        IMAGE_TAG: latest
-        AWS_REGION: ${{ secrets.AWS_REGION }}
-        ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
-        EKS_CLUSTER_NAME: ${{ secrets.EKS_CLUSTER_NAME }}
-        REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        # IMAGE_TAG: ${{ github.sha }} // keep this and use another image tag for simplicity
+          IMAGE_TAG: latest
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
+          EKS_CLUSTER_NAME: ${{ secrets.EKS_CLUSTER_NAME }}
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
 
         run: |
           docker build -t $ECR_REPOSITORY:$IMAGE_TAG .
