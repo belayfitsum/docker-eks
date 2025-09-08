@@ -10,6 +10,10 @@
 #   enable_nat_gateway = false
 #   enable_vpn_gateway = false
 
+#     # This setting is required for EKS nodes to receive a public IP address
+#   map_public_ip_on_launch = true
+
+
 #   tags = {
 #     "project" = "ci-cd-eks"
 #   }
@@ -45,10 +49,19 @@
 #   }
 # }
 
+# data "aws_eks_cluster" "this" {
+#   name = module.eks.cluster_name
+# }
+# data "aws_eks_cluster_auth" "this" {
+#   name = module.eks.cluster_name
+# }
+
+
 # provider "kubernetes" {
 #   host                   = module.eks.cluster_endpoint
 #   cluster_ca_certificate = base64decode(module.eks.cluster_certificate_authority_data)
-#   token                  = module.eks.cluster_auth_token
+#   token                  = data.aws_eks_cluster_auth.this.token
+
 # }
 
 # # Kubernetes Deployment for the Express app

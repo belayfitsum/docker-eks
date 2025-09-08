@@ -20,3 +20,12 @@ Then raise merge rewuest to production branch
 Github cicd pull the code and run tests
 Then finally deploy it to deployment server
 
+# Mitigating errors in tf apply
+
+Deploy the cluster first bcuse for some of the resources that should be first in place, like quering it.
+< terrfaform apply -taget=module.eks>
+
+Once the cluster exists
+
+<terraform apply>
+
