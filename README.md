@@ -1,10 +1,12 @@
 # docker-eks
 
-build, test and deploy the node application with kubernetes while learning deployment workflows 
+Build, test and deploy the application to Elastic kubernetes Service (EKS) while learning deployment workflows using github CICD. 
 
-# Then we dockerize
-
-- listing all the dependencies of the app as put in package json dependencies and the command we want to run
+# Tools
+- ECR- Docker images repository to hold the images built
+- Docker - for containerizng the express app
+- Terraform- IaC tool to provision the base infrastructure such as ECR repository, VPC and EKS clusters
+- Github- for version control and deployment to AWS- CICD
 
 # Port mapping
 forwarding incoming traffic to the container from our computer on a specific port.
@@ -28,4 +30,9 @@ Deploy the cluster first bcuse for some of the resources that should be first in
 Once the cluster exists
 
 <terraform apply>
+
+Anoter option:
+
+Removing k8 creation from terraform and use kubectl cli to deploy ek8 cluster
+Only ecr repo creatoon handled with terraform
 
