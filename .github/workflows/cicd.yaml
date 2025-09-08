@@ -53,12 +53,12 @@ jobs:
     runs-on: ubuntu-latest # configuring the runner which executes my jobs
     needs: terraform-infra-wf
     env:
-        # IMAGE_TAG: ${{ github.sha }} // keep this and use another image tag for simplicity
-          IMAGE_TAG: latest
-          AWS_REGION: ${{ secrets.AWS_REGION }}
-          ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
-          EKS_CLUSTER_NAME: ${{ secrets.EKS_CLUSTER_NAME }}
-          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+    # IMAGE_TAG: ${{ github.sha }} // keep this and use another image tag for simplicity
+      IMAGE_TAG: latest
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+      ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
+      EKS_CLUSTER_NAME: ${{ secrets.EKS_CLUSTER_NAME }}
+      REGISTRY: ${{ steps.login-ecr.outputs.registry }}
 
     steps:
       - name: Checkout source
