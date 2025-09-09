@@ -76,8 +76,7 @@ jobs:
 
       - name: Build and push Docker image # login to the docker CLI inside the runner
         env:
-         # IMAGE_TAG: ${{ github.sha }} # keep this and use another image tag for simplicity
-          IMAGE_TAG: 1.1
+          IMAGE_TAG: ${{ github.sha }} # keep this and use another image tag for simplicity
           ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }} # storing the login to ecr step ito a variable so that docker can use it to push 
         run: |
@@ -93,34 +92,51 @@ jobs:
       #     kubectl apply -f k8s/deployment.yaml
       #     kubectl apply -f k8s/service.yaml
 
-  # deploy-wf:
-  #   name: Deploy to EKS
-  #   runs-on: ubuntu-latest # each job needs own runner
-  #   needs: build-wf
+  deploy-wf:
+    name: Deploy to EKS
+    runs-on: ubuntu-latest # each job needs own runner
+    needs: build-wf
 
-  #   env:
-  #     ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
-  #     EKS_CLUSTER_NAME: ${{ secrets.EKS_CLUSTER_NAME }}
-  #     AWS_REGION: ${{ secrets.AWS_REGION }}
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v3
 
-  #   steps:
+      - name: Install kubectl
+        uses: azure/setup-kubectl@v2.0
+        id: install
 
-  #     - name: Configure AWS credentials
-  #       uses: aws-actions/configure-aws-credentials@v2
-  #       with:
-  #         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-  #         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-  #         aws-region: ${{ env.AWS_REGION }}
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
 
-  #     - name: Update Kubeconfig       
-  #       run: |
-  #         aws eks update-kubeconfig --name $EKS_CLUSTER_NAME --region $AWS_REGION
+      - name: Update Kubeconfig       
+        run: |
+          aws eks update-kubeconfig --name $EKS_CLUSTER_NAME --region $AWS_REGION
 
-  #     - name: Deploy to EKS # pass the image from build-wf, replace the image and wait for the rollout
-  #       run: |
-  #         IMAGE_URI="${{ needs.build-wf.outputs.registry }}/${{ secrets.ECR_REPOSITORY }}:${{ needs.build-wf.outputs.image_tag }}"
-  #         # kubectl set image deployment/express-app-deployment express-app=${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:$IMAGE_TAG
+      - name : update the deployment 
+        run: |
+         kubectl apply -f k8s/deployment.yaml
+         kubectl apply -f k8s/service.yaml   
 
-  #         kubectl set image deployment/express-app-deployment express-app=$IMAGE_URI
+      - name: Log in to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+        with:
+          mask-password: 'false'
 
-  #         kubectl rollout status deployment/express-app-deployment
+      - name: Deploy to EKS 
+        env:
+          EKS_CLUSTER_NAME: ${{ secrets.EKS_CLUSTER_NAME }}
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
+          IMAGE_TAG: ${{ github.sha }}
+
+        # since both jobs are in the same workflow, it can reuse the githab sha.
+        #  No need to authenticate and pull from ecr. replace the image and wait for the rollout
+      - name: update the deployment image to latest build
+        run: |
+          kubectl set image deployment/express-app-deployment express-app=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          kubectl rollout status deployment/express-app-deployment
