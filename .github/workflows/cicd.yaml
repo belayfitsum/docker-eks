@@ -111,11 +111,9 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
-
-      - name : update the deployment 
+      - name : update kubeconfig
         run: |
-         kubectl apply -f k8s/deployment.yaml
-         kubectl apply -f k8s/service.yaml   
+          aws eks update-kubeconfig --name ${{ secrets.EKS_CLUSTER_NAME }} --region ${{ secrets.AWS_REGION }}
 
       - name: Log in to Amazon ECR
         id: login-ecr
@@ -123,18 +121,18 @@ jobs:
         with:
           mask-password: 'false'
 
-      - name: Deploy to EKS 
-        env:
-          EKS_CLUSTER_NAME: ${{ secrets.EKS_CLUSTER_NAME }}
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
-          IMAGE_TAG: ${{ github.sha }}
+      - name : update the deployment 
         run: |
-          aws eks update-kubeconfig --name $EKS_CLUSTER_NAME --region $AWS_REGION
+         kubectl apply -f k8s/deployment.yaml
+         kubectl apply -f k8s/service.yaml   
 
         # since both jobs are in the same workflow, it can reuse the githab sha.
         #  No need to authenticate and pull from ecr. replace the image and wait for the rollout
       - name: update the deployment image to latest build
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
+          IMAGE_TAG: ${{ github.sha }}
         run: |
           kubectl set image deployment/express-app-deployment express-app=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           kubectl rollout status deployment/express-app-deployment
