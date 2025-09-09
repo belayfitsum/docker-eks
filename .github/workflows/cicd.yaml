@@ -112,10 +112,6 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Update Kubeconfig       
-        run: |
-          aws eks update-kubeconfig --name $EKS_CLUSTER_NAME --region $AWS_REGION
-
       - name : update the deployment 
         run: |
          kubectl apply -f k8s/deployment.yaml
@@ -133,6 +129,8 @@ jobs:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
           IMAGE_TAG: ${{ github.sha }}
+        run: |
+          aws eks update-kubeconfig --name $EKS_CLUSTER_NAME --region $AWS_REGION
 
         # since both jobs are in the same workflow, it can reuse the githab sha.
         #  No need to authenticate and pull from ecr. replace the image and wait for the rollout
