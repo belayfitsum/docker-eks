@@ -8,3 +8,9 @@ variable "tf_state_lock_table" {
   default     = "simpleweb-api-tf-lock"
 
 }
+
+variable "project" {
+    description = "Project name for tagging resources"
+    default = "simpleweb-app-api"
+  
+}

@@ -5,6 +5,8 @@ on:
     branches:
       - main
   pull_request:
+    branches:
+      - main
 
 # This workflow has only two jobs [infra preparation and image building- pushing to ecr]. Deploy to Kubernetes job is on its way.
 # Notes: OpenIDConnect OIDC can be used to authenticate github to use aws resources instead of using aws access keys.
