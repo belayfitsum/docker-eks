@@ -21,7 +21,7 @@ data "aws_iam_policy_document" "tf_backend" {
         "s3:ListBucket",
         "s3:GetBucketLocation"
         ]
-    resources = ["arn:aws:s3:::${var.tf_state_bucket}"]
+    resources = ["arn:aws:s3:::${var.tf_state_bucket}/*"]
   }
 
   statement {
@@ -36,7 +36,8 @@ data "aws_iam_policy_document" "tf_backend" {
       "dynamodb:DescribeTable",
       "dynamodb:GetItem",
       "dynamodb:PutItem",
-      "dynamodb:DeleteItem"
+      "dynamodb:DeleteItem",
+      "dynamodb:UpdateItem"
     ]
     resources = ["arn:aws:dynamodb:*:*:table/${var.tf_state_lock_table}"]
   }
