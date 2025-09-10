@@ -9,8 +9,8 @@ terraform {
   }
 
   backend "s3" {
-    bucket         = "my-api-test-buck"
-    key            = "infra.tfstate"
+    bucket         = "my-api-test-buck-cd"
+    key            = "infra.tfstate.cd"
     region         = "eu-central-1"
     encrypt        = true
     dynamodb_table = "simpleweb-api-tf-lock"
