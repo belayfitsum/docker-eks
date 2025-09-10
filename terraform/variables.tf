@@ -1,0 +1,10 @@
+variable "tf_state_bucket" {
+  description = "Name of the s3 bucket in AWS for storing state"
+  default     = "my-api-test-buck"
+}
+
+variable "tf_state_lock_table" {
+  description = "Name of DynamoDb table for state locking"
+  default     = "simpleweb-api-tf-lock"
+
+}
