@@ -17,7 +17,6 @@ jobs:
     defaults:
       run:
         working-directory: terraform
-    if: contains(github.event.head_commit.message, '[infra]') || !contains(github.event.head_commit.message, '[infra]')
 
     steps:
     - name: Checkout Code
@@ -55,7 +54,6 @@ jobs:
     name: Build, tag and push to Amazon ECR
     runs-on: ubuntu-latest # configuring the runner which executes my jobs
     needs: terraform-infra-wf
-    if: "!contains(github.event.head_commit.message, '[infra]')"  # skip if infra-only commit
 
     steps:
       - name: Checkout source
@@ -100,7 +98,6 @@ jobs:
     name: Deploy to EKS
     runs-on: ubuntu-latest # each job needs own runner
     needs: build-wf
-    if: "!contains(github.event.head_commit.message, '[infra]')"  # skip if infra-only commit
     steps:
       - name: Checkout source
         uses: actions/checkout@v3
