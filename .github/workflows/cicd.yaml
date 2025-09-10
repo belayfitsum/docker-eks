@@ -17,7 +17,7 @@ jobs:
     defaults:
       run:
         working-directory: terraform
-    if: true
+    if: contains(github.event.head_commit.message, '[infra]') || !contains(github.event.head_commit.message, '[infra]')
 
     steps:
     - name: Checkout Code
