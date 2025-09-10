@@ -17,7 +17,10 @@ resource "aws_iam_access_key" "cd" {
 data "aws_iam_policy_document" "tf_backend" {
   statement {
     effect    = "Allow"
-    actions   = ["s3:ListBucket"]
+    actions   = [
+        "s3:ListBucket",
+        "s3:GetBucketLocation"
+        ]
     resources = ["arn:aws:s3:::${var.tf_state_bucket}"]
   }
 
