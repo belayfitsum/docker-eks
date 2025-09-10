@@ -24,7 +24,7 @@ data "aws_iam_policy_document" "tf_backend" {
   statement {
     effect = "Allow"
     actions = [ "s3:GetObject", "s3:PutObject", "s3:DeleteObject" ]
-    resources = [ "arn:aws:s3:::${var.tf_state_bucket}/infra.tfstate/*" ]
+    resources = [ "arn:aws:s3:::${var.tf_state_bucket}/infra.tfstate" ]
   }
 
   statement {
