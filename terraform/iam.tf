@@ -21,13 +21,13 @@ data "aws_iam_policy_document" "tf_backend" {
         "s3:ListBucket",
         "s3:GetBucketLocation"
         ]
-    resources = ["arn:aws:s3:::${var.tf_state_bucket}/*"]
+    resources = ["arn:aws:s3:::${var.tf_state_bucket}"]
   }
 
   statement {
     effect = "Allow"
     actions = [ "s3:GetObject", "s3:PutObject", "s3:DeleteObject", "s3:HeadObject" ]
-    resources = [ "arn:aws:s3:::${var.tf_state_bucket}/infra.tfstate" ]
+    resources = [ "arn:aws:s3:::${var.tf_state_bucket}/*" ]
   }
 
   statement {
