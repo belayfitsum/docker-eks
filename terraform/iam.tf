@@ -57,33 +57,61 @@ resource "aws_iam_user_policy_attachment" "tf-backend" {
 
 }
 
-# data "aws_caller_identity" "current" {}
+#########################
+# Policy for ECR access #
+#########################
 
-# resource "aws_s3_bucket_policy" "tf_backend" {
-#   bucket = var.tf_state_bucket
+data "aws_iam_policy_document" "ecr" {
+  statement {
+    effect    = "Allow"
+    actions   = ["ecr:GetAuthorizationToken"]
+    resources = ["*"]
+  }
 
-#   policy = jsonencode({
-#     Version = "2012-10-17"
-#     Statement = [
-#       {
-#         Effect = "Allow"
-#         Principal = {
-#           AWS = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:user/${aws_iam_user.cd.name}"
-#         }
-#         Action = [
-#           "s3:GetObject",
-#           "s3:PutObject",
-#           "s3:DeleteObject",
-#           "s3:ListBucket",
-#           "s3:GetBucketLocation",
-#           "s3:HeadObject"
-#         ]
-#         Resource = [
-#           "arn:aws:s3:::${var.tf_state_bucket}",
-#           "arn:aws:s3:::${var.tf_state_bucket}/*"
-#         ]
-#       }
-#     ]
-#   })
-# }
+  statement {
+    effect = "Allow"
+    actions = [
+      "ecr:CompleteLayerUpload",
+      "ecr:UploadLayerPart",
+      "ecr:InitiateLayerUpload",
+      "ecr:BatchCheckLayerAvailability",
+      "ecr:PutImage"
+    ]
+    resources = [
+       aws_ecr_repository.express_app_repo.arn
+    ]
+  }
+
+  statement {
+  effect = "Allow"
+  actions = [
+    "ecr:DescribeRepositories",
+    "ecr:ListImages",
+    "ecr:DescribeImages",
+    "ecr:BatchGetImage",
+    "ecr:GetDownloadUrlForLayer",
+    "ecr:ListTagsForResource"
+  ]
+  resources = [
+    aws_ecr_repository.express_app_repo.arn
+  ]
+}
+}
+
+resource "aws_iam_policy" "ecr" {
+  name        = "${aws_iam_user.cd.name}-ecr"
+  description = "Allow user to manage ECR resources"
+  policy      = data.aws_iam_policy_document.ecr.json
+}
+
+resource "aws_iam_user_policy_attachment" "ecr" {
+  user       = aws_iam_user.cd.name
+  policy_arn = aws_iam_policy.ecr.arn
+}
+
+#########################
+# Policy for K8 access #
+#########################
+
+
 

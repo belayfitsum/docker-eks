@@ -14,3 +14,8 @@ variable "project" {
     default = "simpleweb-app-api"
   
 }
+
+variable "region" {
+    description = "region of ecr"
+    default = "eu-central-1"
+}
