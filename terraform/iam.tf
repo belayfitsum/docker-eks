@@ -7,7 +7,7 @@
 # }
 
 resource "aws_iam_access_key" "cd" {
-  user = aws_iam_user.cd.name
+  user = simple-web-app-usr
 }
 
 ##########################################################
@@ -45,7 +45,7 @@ data "aws_iam_policy_document" "tf_backend" {
 }
 
 resource "aws_iam_policy" "tf_backend" {
-  name        = "${simple-web-app-usr}-tf-s3-dynamodb"
+  name        = simple-web-app-usr-tf-s3-dynamodb
   description = "Allow user to use s3 and DynamoDb for TF backend resources"
   policy      = data.aws_iam_policy_document.tf_backend.json
 
@@ -99,7 +99,7 @@ data "aws_iam_policy_document" "ecr" {
 }
 
 resource "aws_iam_policy" "ecr" {
-  name        = "${simple-web-app-usr}-ecr"
+  name        = simple-web-app-usr-ecr
   description = "Allow user to manage ECR resources"
   policy      = data.aws_iam_policy_document.ecr.json
 }
