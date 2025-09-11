@@ -65,9 +65,7 @@ jobs:
         # running testing before building image. Only tested images are built.
       - name: Setup Node.js
         uses: actions/setup-node@v3
-        with:
-        node-version: '18'
-
+      
       - name: Install Dependencies
         run: npm install
 
