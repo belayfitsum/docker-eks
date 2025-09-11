@@ -52,7 +52,7 @@ resource "aws_iam_policy" "tf_backend" {
 }
 
 resource "aws_iam_user_policy_attachment" "tf-backend" {
-  user       = simple-web-app-usr
+  user       = "simple-web-app-usr"
   policy_arn = aws_iam_policy.tf_backend.arn
 
 }
@@ -105,7 +105,7 @@ resource "aws_iam_policy" "ecr" {
 }
 
 resource "aws_iam_user_policy_attachment" "ecr" {
-  user       = simple-web-app-usr
+  user       = "simple-web-app-usr"
   policy_arn = aws_iam_policy.ecr.arn
 }
 
