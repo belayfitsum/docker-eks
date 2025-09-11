@@ -6,9 +6,9 @@
 #   name = "simple-web-app-usr"
 # }
 
-# resource "aws_iam_access_key" "cd" {
-#   user = aws_iam_user.cd.name
-# }
+resource "aws_iam_access_key" "cd" {
+  user = aws_iam_user.cd.name
+}
 
 ##########################################################
 # Policy for Terraform backend to S3 and Dynamo Db access #
@@ -45,7 +45,7 @@ data "aws_iam_policy_document" "tf_backend" {
 }
 
 resource "aws_iam_policy" "tf_backend" {
-  name        = "${aws_iam_user.cd.name}-tf-s3-dynamodb"
+  name        = "${simple-web-app-usr}-tf-s3-dynamodb"
   description = "Allow user to use s3 and DynamoDb for TF backend resources"
   policy      = data.aws_iam_policy_document.tf_backend.json
 
@@ -99,7 +99,7 @@ data "aws_iam_policy_document" "ecr" {
 }
 
 resource "aws_iam_policy" "ecr" {
-  name        = "${aws_iam_user.cd.name}-ecr"
+  name        = "${simple-web-app-usr}-ecr"
   description = "Allow user to manage ECR resources"
   policy      = data.aws_iam_policy_document.ecr.json
 }
