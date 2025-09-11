@@ -59,3 +59,7 @@ Only ecr repo creatoon handled with terraform
                           [LoadBalancer/Ingress]
                               (exposes externally)
 
+# Notes
+
+Now github secrets use the new cicd user responsible to run pipeline jobs. However when there is a need to add permissions to access ec2, k8 or anything else, it should be switched to the admin usr credentials to setup permissions and switch back again. 
+It is always possible to swap to CICD user when the necessary permissions are set to it by admin user.
