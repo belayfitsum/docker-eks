@@ -10,12 +10,12 @@ variable "tf_state_lock_table" {
 }
 
 variable "project" {
-    description = "Project name for tagging resources"
-    default = "simpleweb-app-api"
-  
+  description = "Project name for tagging resources"
+  default     = "simpleweb-app-api"
+
 }
 
 variable "region" {
-    description = "region of ecr"
-    default = "eu-central-1"
+  description = "region of ecr"
+  default     = "eu-central-1"
 }
