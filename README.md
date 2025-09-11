@@ -1,16 +1,29 @@
-# docker-eks
+# Cloud Infrastructure Automation: Terraform | AWS | Docker | GitHub CI/CD | Kubernetes
 
-Build, test and deploy the application to Elastic kubernetes Service (EKS) while learning deployment workflows using github CICD. 
+Build, test and deploy a small express application to Elastic kubernetes Service (EKS) while learning deployment workflows using github CICD. 
 
 # Project 
 
-I started with setting up s3 backend for terraform and provisioning the ECR repository at the gate go. I also added eks creation using aws-module for eks which installs all dependencies required for the eks to run. However deploying the eks cluster  has run into issues with the nodes creation as some of the resources needs to be inplace before the module creation is complete. For that reason I switched for a second option. I commented out the old setup for future references.
+I began by setting up an S3 backend for Terraform and provisioning an ECR repository as the initial step. I then added EKS cluster creation using the official AWS EKS module, which also installs the necessary dependencies for the cluster to run.
+
+However, I encountered issues during node creation since some resources needed to be in place before the module could complete successfully. To work around this, I explored an alternative approach. The original setup has been commented out and kept in the codebase for future reference.
 
 # New setup
 
-- Provision eks using eksctl. This was much easier to get started because eksctl ddeploy AWS Cloudformation
-stacks which contains everything , such as worker nodes, ,VPC, Subnets,IAM permissions and roles etc. Even thoughI have an Administrator role to the deployment environment i.e able to do whatever on ECR, EKS etc, it is a recommended practice to create a dedicated user for the CICD pipline with only enough permission. 
-<eksctl create cluster --name k8-express-app-cluster --region eu-central-1 --nodegroup-name linux-nodes --node-type t2.micro --nodes 2>
+Provisioned the EKS cluster using eksctl, which made the process much simpler. eksctl deploys AWS CloudFormation stacks that automatically create and configure all required resources, such as worker nodes, VPC, subnets, IAM roles, and permissions.
+
+While I had Administrator access to the deployment environment (AWS), I followed best practices by creating a dedicated CI/CD user with only the minimum required permissions instead of relying on admin credentials. This adds an extra layer of security and ensures least-privilege access. The CICD user has only needed privillages to run pipline jobs. 
+
+### Create EKS Cluster with eksctl  
+
+This command will create EKS cluster in **us-east-1** with two `t2.micro` worker nodes:  
+
+eksctl create cluster \
+  --name k8-express-app-cluster \
+  --region us-east-1 \
+  --nodegroup-name linux-nodes \
+  --node-type t2.micro \
+  --nodes 2
 
 - Save the file in the project and push it to github. The pipline triggered with push will walk through each job using a gihb hosted runners and perform each steps as dictated in the github workflows file. 
 
@@ -61,5 +74,7 @@ Only ecr repo creatoon handled with terraform
 
 # Notes
 
-Now github secrets use the new cicd user responsible to run pipeline jobs. However when there is a need to add permissions to access ec2, k8 or anything else, it should be switched to the admin usr credentials to setup permissions and switch back again. 
-It is always possible to swap to CICD user when the necessary permissions are set to it by admin user.
+GitHub Actions now uses the dedicated CICD user to run pipeline jobs.
+When new permissions are required (for example, to access EC2, EKS, or other AWS services), switch temporarily to the admin user to set up those permissions.
+
+After the policies are updated, you can safely switch back to the CICD user, ensuring pipelines continue running with the principle of least privilege.
