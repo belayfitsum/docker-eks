@@ -6,9 +6,9 @@
 #   name = "simple-web-app-usr"
 # }
 
-resource "aws_iam_access_key" "cd" {
-  user = simple-web-app-usr
-}
+# resource "aws_iam_access_key" "cd" {
+#   user = aws_iam_user.cd.name
+# }
 
 ##########################################################
 # Policy for Terraform backend to S3 and Dynamo Db access #
