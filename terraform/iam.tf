@@ -57,33 +57,33 @@ resource "aws_iam_user_policy_attachment" "tf-backend" {
 
 }
 
-data "aws_caller_identity" "current" {}
+# data "aws_caller_identity" "current" {}
 
-resource "aws_s3_bucket_policy" "tf_backend" {
-  bucket = var.tf_state_bucket
+# resource "aws_s3_bucket_policy" "tf_backend" {
+#   bucket = var.tf_state_bucket
 
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Effect = "Allow"
-        Principal = {
-          AWS = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:user/${aws_iam_user.cd.name}"
-        }
-        Action = [
-          "s3:GetObject",
-          "s3:PutObject",
-          "s3:DeleteObject",
-          "s3:ListBucket",
-          "s3:GetBucketLocation",
-          "s3:HeadObject"
-        ]
-        Resource = [
-          "arn:aws:s3:::${var.tf_state_bucket}",
-          "arn:aws:s3:::${var.tf_state_bucket}/*"
-        ]
-      }
-    ]
-  })
-}
+#   policy = jsonencode({
+#     Version = "2012-10-17"
+#     Statement = [
+#       {
+#         Effect = "Allow"
+#         Principal = {
+#           AWS = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:user/${aws_iam_user.cd.name}"
+#         }
+#         Action = [
+#           "s3:GetObject",
+#           "s3:PutObject",
+#           "s3:DeleteObject",
+#           "s3:ListBucket",
+#           "s3:GetBucketLocation",
+#           "s3:HeadObject"
+#         ]
+#         Resource = [
+#           "arn:aws:s3:::${var.tf_state_bucket}",
+#           "arn:aws:s3:::${var.tf_state_bucket}/*"
+#         ]
+#       }
+#     ]
+#   })
+# }
 
