@@ -37,10 +37,10 @@ module "eks" {
   # Configure the managed node group
   eks_managed_node_groups = {
     express_app_nodes = {
-      min_size       = 1
-      max_size       = 2 # Changed max_size to allow for scaling
-      desired_size   = 1
-      instance_types = ["t3.large"]
+      min_size       = 2
+      max_size       = 5 # Changed max_size to allow for scaling
+      desired_size   = 4
+      instance_types = ["t3.medium"]
     }
   }
 
