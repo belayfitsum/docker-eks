@@ -32,6 +32,13 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ${{ secrets.AWS_REGION }}
 
+    - name: Assume Admin Role
+      id: assume_role
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        role-to-assume: ${{ secrets.AWS_ADMIN_ROLE_ARN }}
+        role-session-name: terraform-admin
+        aws-region: ${{ secrets.AWS_REGION }}
 
     - name: Initialize Terraform
       run: terraform init
