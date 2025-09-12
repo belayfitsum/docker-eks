@@ -2,13 +2,42 @@
 
 Build, test and deploy a small express application to Elastic kubernetes Service (EKS) while learning deployment workflows using github CICD. 
 
-### Project 
+### Infrastructure setup 
 
-I began by setting up an S3 backend for Terraform and provisioning an ECR repository as the initial step. I then added EKS cluster creation using the official AWS EKS module, which also installs the necessary dependencies for the cluster to run.
+This project provisions infrastructure on AWS for running an Express.js application inside EKS (Elastic Kubernetes Service).
+I tested two different approaches for cluster creation and management:
 
-However, I encountered issues during node creation since some resources needed to be in place before the module could complete successfully. To work around this, I explored an alternative approach. The original setup has been commented out and kept in the codebase for future development.
+1. Using eksctl
 
-### New setup
+Simpler CLI-driven setup.
+
+Good for quick experimentation.
+
+2. Using Terraform AWS EKS Module
+
+Infrastructure defined as code (infra.tf).
+
+Supports full lifecycle management of:
+
+- VPC
+
+- EKS cluster
+
+- Node groups
+
+- IAM roles and policies
+
+- ECR repositories
+
+The GitHub Actions pipeline authenticates to AWS using assume-role.
+
+The CICD IAM user (simple-web-app-usr) assumes an admin deployment role (AdminDeployRoleSimpleWeb) for Terraform.
+
+This avoids storing admin credentials directly in GitHub secrets.
+
+*** Notes- if you prefer to use eksctl , easier setup, comment out the eks module setup from the infrastructure part.
+
+### Eksctl setup
 
 Provisioned the EKS cluster using eksctl, which made the process much simpler. eksctl deploys AWS CloudFormation stacks that automatically create and configure all required resources, such as worker nodes, VPC, subnets, IAM roles, and permissions.
 
@@ -58,7 +87,7 @@ eksctl create cluster \
 ### Notes
 
 GitHub Actions now uses the dedicated CICD user to run pipeline jobs.
-When new permissions are required (for example, to access EC2, EKS, or other AWS services), switch temporarily to the admin user to set up those permissions.
+When new permissions are required (for example, to access EC2, EKS, or other AWS services), switch temporarily to the admin user to set up/bootstrap those permissions.
 
 After the policies are updated, you can safely switch back to the CICD user, ensuring pipelines continue running with the principle of least privilege.
 
