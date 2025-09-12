@@ -40,7 +40,7 @@ module "eks" {
       min_size       = 1
       max_size       = 2 # Changed max_size to allow for scaling
       desired_size   = 1
-      instance_types = ["t3.medium"]
+      instance_types = ["t3.large"]
     }
   }
 
