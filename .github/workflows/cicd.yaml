@@ -32,6 +32,13 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ${{ secrets.AWS_REGION }}
 
+    - name: Assume Admin Role
+      id: assume_role
+      uses: aws-actions/configure-aws-credentials@v3
+      with:
+        role-to-assume: ${{ secrets.AWS_ADMIN_ROLE_ARN }}
+        role-session-name: terraform-admin
+        aws-region: ${{ secrets.AWS_REGION }}
 
     - name: Initialize Terraform
       run: terraform init
@@ -131,10 +138,10 @@ jobs:
         with:
           mask-password: 'false'
 
-      - name : update the deployment 
-        run: |
-         kubectl apply -f k8s/deployment.yaml
-         kubectl apply -f k8s/service.yaml   
+      # - name : update the deployment 
+      #   run: |
+      #    kubectl apply -f k8s/deployment.yaml
+      #    kubectl apply -f k8s/service.yaml   
 
         # since both jobs are in the same workflow, it can reuse the githab sha.
         #  No need to authenticate and pull from ecr. replace the image and wait for the rollout
