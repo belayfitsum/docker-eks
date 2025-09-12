@@ -5,12 +5,12 @@ module "vpc" {
   name = "eks-vpc"
   cidr = "10.0.0.0/16"
 
-  azs             = ["eu-central-1a", "eu-central-1b"]
-  public_subnets  = ["10.0.1.0/24", "10.0.2.0/24"]
+  azs                = ["eu-central-1a", "eu-central-1b"]
+  public_subnets     = ["10.0.1.0/24", "10.0.2.0/24"]
   enable_nat_gateway = false
   enable_vpn_gateway = false
 
-    # This setting is required for EKS nodes to receive a public IP address
+  # This setting is required for EKS nodes to receive a public IP address
   map_public_ip_on_launch = true
 
 
@@ -24,10 +24,10 @@ module "eks" {
   source  = "terraform-aws-modules/eks/aws"
   version = "21.1.5"
 
-  endpoint_public_access  = true   # allow API access from internet
-  endpoint_private_access = true 
+  endpoint_public_access  = true # allow API access from internet
+  endpoint_private_access = true
 
-  name  = "my-express-app-eks"
+  name               = "my-express-app-eks"
   kubernetes_version = "1.29"
 
   vpc_id                   = module.vpc.vpc_id
@@ -49,12 +49,12 @@ module "eks" {
   }
 }
 
-data "aws_eks_cluster" "this" {
-  name = module.eks.cluster_name
-}
-data "aws_eks_cluster_auth" "this" {
-  name = module.eks.cluster_name
-}
+# data "aws_eks_cluster" "this" {
+#   name = module.eks.cluster_name
+# }
+# data "aws_eks_cluster_auth" "this" {
+#   name = module.eks.cluster_name
+# }
 
 
 provider "kubernetes" {
