@@ -9,25 +9,25 @@ I tested two different approaches for cluster creation and management:
 
 1. Using eksctl
 
-Simpler CLI-driven setup.
+    - Simpler CLI-driven setup.
 
-Good for quick experimentation.
+    - Good for quick experimentation.
 
 2. Using Terraform AWS EKS Module
 
-Infrastructure defined as code (infra.tf).
+    - Infrastructure defined as code (infra.tf).
 
-Supports full lifecycle management of:
+    - Supports full lifecycle management of:
 
-- VPC
+    - VPC
 
-- EKS cluster
+    - EKS cluster
 
-- Node groups
+    - Node groups
 
-- IAM roles and policies
+    - IAM roles and policies
 
-- ECR repositories
+    - ECR repositories
 
 The GitHub Actions pipeline authenticates to AWS using assume-role.
 
