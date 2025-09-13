@@ -87,9 +87,20 @@ eksctl create cluster \
 ### Notes
 
 GitHub Actions now uses the dedicated CICD user to run pipeline jobs.
-When new permissions are required (for example, to access EC2, EKS, or other AWS services), switch temporarily to the admin user to set up/bootstrap those permissions.
+However when new permissions are required (for example, to access EC2, EKS, or other AWS services), switch temporarily to the admin user to set up/bootstrap those permissions. \
+After the policies are updated, you can safely switch back to the CICD user, ensuring pipelines continue running with the principle of least privilege.\
 
-After the policies are updated, you can safely switch back to the CICD user, ensuring pipelines continue running with the principle of least privilege.
+ Or most prefrably  assumes an admin deployment role (AdminDeployRoleSimpleWeb) temporarily to perform an admin-level IAM task.\
+ This can be clearly seen in the pipline job {terraform-infra-wf}, where The GitHub Actions pipeline first authenticates with a dedicated CI/CD IAM user, which then assumes an admin deployment role (AdminDeployRoleSimpleWeb) to provision infrastructure. 
+
+
+    - name: Assume Admin Role \
+      id: assume_role \
+      uses: aws-actions/configure-aws-credentials@v3 \
+      with: \
+        role-to-assume: ${{ secrets.AWS_ADMIN_ROLE_ARN }} \
+        role-session-name: terraform-admin \
+        aws-region: ${{ secrets.AWS_REGION }} \
 
 ### Project cleanup
 
