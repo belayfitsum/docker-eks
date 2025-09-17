@@ -14,7 +14,7 @@ terraform {
     region         = "eu-central-1"
     encrypt        = true
     dynamodb_table = "simpleweb-api-tf-lock"
-    use_lockfile   = true
+    # use_lockfile   = true
   }
 }
 
