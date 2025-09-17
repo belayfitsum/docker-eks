@@ -1,5 +1,5 @@
 # Specify a base image. Pulled from node repository and an alpine tag 
-FROM node:18-alpine
+FROM node:alpine
 
 WORKDIR /usr/app
 

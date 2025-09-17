@@ -89,6 +89,12 @@ jobs:
         with:
           mask-password: 'false'
 
+      - name: Build and test with Docker Compose
+        run: |
+          docker-compose up -d
+          sleep 10 # wait for Redis
+          docker-compose ps
+
       - name: Build and push Docker image # login to the docker CLI inside the runner
         env:
           IMAGE_TAG: ${{ github.sha }} # keep this and use another image tag for simplicity

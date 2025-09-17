@@ -74,7 +74,7 @@ eksctl create cluster \
 
 # Development & Deployment Workflow
 
-- Create a feature branch and make your changes.
+- Create a feature branch[ticket numer as best prctice] and make your changes.
 
 - Push the branch to GitHub and open a pull request to merge into the main branch.
 
