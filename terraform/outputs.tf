@@ -31,18 +31,18 @@ output "cluster_status" {
   value       = module.eks.cluster_status
 }
 
-output "ecr_repo_name" {
-  description = "ECR Repo name"
-  value       = module.ecr.repository_name
-}
+# output "ecr_repo_name" {
+#   description = "ECR Repo name"
+#   value       = module.ecr.repository_name
+# }
 
-output "ecr_repo_url" {
-  description = "ECR Repo URI"
-  value       = module.ecr.repository_url
-}
+# output "ecr_repo_url" {
+#   description = "ECR Repo URI"
+#   value       = module.ecr.repository_url
+# }
 
 # Kubectl Configuration
 output "configure_kubectl" {
   description = "Configure kubectl: make sure you're logged in with the correct AWS profile and run the following command to update your kubeconfig"
-  value       = "aws eks update-kubeconfig --name ${module.eks.cluster_name} --region ${var.aws_region}"
+  value       = "aws eks update-kubeconfig --name ${module.eks.cluster_name} --region ${var.region}"
 }
