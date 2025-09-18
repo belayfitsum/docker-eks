@@ -7,7 +7,7 @@ on:
   pull_request:
     branches:
       - main
-workflow_dispatch: # for manual trigger such as destroy jobs
+# workflow_dispatch: # for manual trigger such as destroy jobs
 
 # Environment Variables
 env:
