@@ -1,12 +1,13 @@
+data "aws_availability_zones" "azs" {}
 
 module "vpc" {
   source = "terraform-aws-modules/vpc/aws"
 
-  name = "eks-vpc"
-  cidr = "10.0.0.0/16"
+  name = var.name
+  cidr = var.vpc_cidr_block
 
-  azs                = ["eu-central-1a", "eu-central-1b"]
-  public_subnets     = ["10.0.1.0/24", "10.0.2.0/24"]
+  azs                = data.aws_availability_zones.azs.names
+  public_subnets     = var.public_subnet_cidr_blocks
   enable_nat_gateway = false
   enable_vpn_gateway = false
 
@@ -27,8 +28,8 @@ module "eks" {
   endpoint_public_access  = true # allow API access from internet
   endpoint_private_access = true
 
-  name               = "my-express-app-eks"
-  kubernetes_version = "1.29"
+  name               = var.cluster_name
+  kubernetes_version = var.k8s_version
 
   vpc_id                   = module.vpc.vpc_id
   subnet_ids               = module.vpc.public_subnets
@@ -38,23 +39,21 @@ module "eks" {
   eks_managed_node_groups = {
     express_app_nodes = {
       min_size       = 2
-      max_size       = 2 # Changed max_size to allow for scaling
+      max_size       = 4 # Changed max_size to allow for scaling
       desired_size   = 2
-      instance_types = ["t3.medium"]
+      instance_types = ["t3.small"]
     }
   }
 
-  tags = {
-    "project" = "ci-cd-eks"
-  }
+  tags = var.tags
 }
 
 data "aws_eks_cluster" "this" {
-  name = module.eks.cluster_name
+  name       = module.eks.cluster_name
   depends_on = [module.eks]
 }
 data "aws_eks_cluster_auth" "this" {
-  name = module.eks.cluster_name
+  name       = module.eks.cluster_name
   depends_on = [module.eks]
 }
 
@@ -119,7 +118,7 @@ provider "kubernetes" {
 # add ecr repo to store the images we create
 
 resource "aws_ecr_repository" "express_app_repo" {
-  name                 = "express-app-repo"
+  name                 = var.ecr_repo
   image_tag_mutability = "MUTABLE"
 
   image_scanning_configuration {

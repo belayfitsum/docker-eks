@@ -1,9 +1,18 @@
-version: '3'
+version: "3.9"
+
 services:
-  redis-server:
-    image: 'redis'
-  node-app:
-    build: . 
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: node_app
     ports:
-      - "4001:8080"
+      - "4001:8080"   # map container port to host 
+    volumes:
+      - .:/usr/app    # mount source for live development (optional)
+      - /usr/app/node_modules  # ensure container uses its own node_modules
+    environment:
+      - NODE_ENV=development
+    command: ["npm", "start"]
+
 

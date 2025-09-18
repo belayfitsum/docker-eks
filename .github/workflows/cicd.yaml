@@ -7,6 +7,16 @@ on:
   pull_request:
     branches:
       - main
+workflow_dispatch: # for manual trigger such as destroy jobs
+
+# Environment Variables
+env:
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  AWS_ADMIN_ROLE_ARN: ${{ secrets.AWS_ADMIN_ROLE_ARN }}
+  AWS_REGION: ${{ secrets.AWS_REGION }}
+  EKS_CLUSTER_NAME: ${{ secrets.EKS_CLUSTER }}
+  S3_BUCKET: ${{ secrets.S3_BUCKET }}
 
 jobs:
   terraform-infra-wf:
@@ -25,32 +35,42 @@ jobs:
     - name: Configure AWS CLI
       uses: aws-actions/configure-aws-credentials@v2
       with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ${{ secrets.AWS_REGION }}
+        aws-access-key-id: ${{ env.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
 
     - name: Assume Admin Role
       id: assume_role
       uses: aws-actions/configure-aws-credentials@v3
       with:
-        role-to-assume: ${{ secrets.AWS_ADMIN_ROLE_ARN }}
+        role-to-assume: ${{ env.AWS_ADMIN_ROLE_ARN }}
         role-session-name: terraform-admin
-        aws-region: ${{ secrets.AWS_REGION }}
+        aws-region: ${{ env.AWS_REGION }}
 
     - name: Initialize Terraform
-      run: terraform init
+      id: init
+      run: terraform init -backend-config="bucket=$S3_BUCKET"
+
 
     - name: Validate Terraform
+      id: validate
       run: terraform validate
 
     - name: Format terraform
       run: terraform fmt -check
       continue-on-error: true
 
+    - name: Terraform plan
+      id: plan
+      run: terraform plan -no-color -input=false -out planfile
+      continue-on-error: true
+
+    - name: Terraform plan status
+      if: steps.plan.outcome == 'failure'
+      run: exit 1
+
     - name: Apply Terraform Changes
-      # env:
-      #   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      #   AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      id: apply
       run: terraform apply -auto-approve
 
 
@@ -79,9 +99,9 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
+          aws-access-key-id: ${{ env.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
 
       - name: Log in to Amazon ECR
         id: login-ecr
@@ -92,7 +112,7 @@ jobs:
       - name: Build and push Docker image # login to the docker CLI inside the runner
         env:
           IMAGE_TAG: ${{ github.sha }} # keep this and use another image tag for simplicity
-          ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
+          ECR_REPOSITORY: ${{ env.ECR_REPOSITORY }}
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }} # storing the login to ecr step ito a variable so that docker can use it to push 
         run: |
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
@@ -122,9 +142,9 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
+          aws-access-key-id: ${{ env.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
       - name : update kubeconfig
         run: |
           aws eks update-kubeconfig --name ${{ secrets.EKS_CLUSTER_NAME }} --region ${{ secrets.AWS_REGION }}
@@ -145,7 +165,7 @@ jobs:
       - name: update the deployment image to latest build
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
+          ECR_REPOSITORY: ${{ env.ECR_REPOSITORY }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
           kubectl set image deployment/express-app-deployment express-app=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG

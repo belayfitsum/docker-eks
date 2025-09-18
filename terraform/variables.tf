@@ -19,3 +19,34 @@ variable "region" {
   description = "region of ecr"
   default     = "eu-central-1"
 }
+
+variable "name" {
+  default = "eks-vpc"
+}
+
+variable "k8s_version" {
+  default = "1.29"
+}
+
+variable "cluster_name" {
+  default = "eks-simpleweb"
+}
+
+variable "vpc_cidr_block" {
+  default = "10.0.0.0/16"
+}
+
+variable "public_subnet_cidr_blocks" {
+  default = ["10.0.1.0/24", "10.0.2.0/24/24", "10.0.3.0/24"]
+}
+
+variable "tags" {
+  default = {
+    App = "eks-cluster"
+  }
+}
+
+variable "ecr_repo" {
+  default = "express-app-repo"
+}
+
