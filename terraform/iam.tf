@@ -6,9 +6,9 @@
 #   name = "simple-web-app-usr"
 # }
 
-resource "aws_iam_access_key" "cd" {
-  user = aws_iam_user.cd.name
-}
+# resource "aws_iam_access_key" "cd" {
+#   user = aws_iam_user.cd.name
+# }
 
 ##########################################################
 # Policy for Terraform backend to S3 and Dynamo Db access #
@@ -51,11 +51,11 @@ data "aws_iam_policy_document" "tf_backend" {
 
 # }
 
-resource "aws_iam_user_policy_attachment" "tf-backend" {
-  user       = "simple-web-app-usr"
-  policy_arn = aws_iam_policy.tf_backend.arn
+# resource "aws_iam_user_policy_attachment" "tf-backend" {
+#   user       = "simple-web-app-usr"
+#   policy_arn = aws_iam_policy.tf_backend.arn
 
-}
+# }
 
 #########################
 # Policy for ECR access #
@@ -104,10 +104,10 @@ data "aws_iam_policy_document" "ecr" {
 #   policy      = data.aws_iam_policy_document.ecr.json
 # }
 
-resource "aws_iam_user_policy_attachment" "ecr" {
-  user       = "simple-web-app-usr"
-  policy_arn = aws_iam_policy.ecr.arn
-}
+# resource "aws_iam_user_policy_attachment" "ecr" {
+#   user       = "simple-web-app-usr"
+#   policy_arn = aws_iam_policy.ecr.arn
+# }
 
 
 
