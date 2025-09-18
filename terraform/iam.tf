@@ -2,9 +2,9 @@
 # Create IAM user and policies for contionous Deploy (CD) #
 ##########################################################
 
-resource "aws_iam_user" "cd" {
-  name = "simple-web-app-usr"
-}
+# resource "aws_iam_user" "cd" {
+#   name = "simple-web-app-usr"
+# }
 
 resource "aws_iam_access_key" "cd" {
   user = aws_iam_user.cd.name
@@ -44,12 +44,12 @@ data "aws_iam_policy_document" "tf_backend" {
 
 }
 
-resource "aws_iam_policy" "tf_backend" {
-  name        = "simple-web-app-usr-tf-s3-dynamodb"
-  description = "Allow user to use s3 and DynamoDb for TF backend resources"
-  policy      = data.aws_iam_policy_document.tf_backend.json
+# resource "aws_iam_policy" "tf_backend" {
+#   name        = "simple-web-app-usr-tf-s3-dynamodb"
+#   description = "Allow user to use s3 and DynamoDb for TF backend resources"
+#   policy      = data.aws_iam_policy_document.tf_backend.json
 
-}
+# }
 
 resource "aws_iam_user_policy_attachment" "tf-backend" {
   user       = "simple-web-app-usr"
@@ -98,11 +98,11 @@ data "aws_iam_policy_document" "ecr" {
   }
 }
 
-resource "aws_iam_policy" "ecr" {
-  name        = "simple-web-app-usr-ecr"
-  description = "Allow user to manage ECR resources"
-  policy      = data.aws_iam_policy_document.ecr.json
-}
+# resource "aws_iam_policy" "ecr" {
+#   name        = "simple-web-app-usr-ecr"
+#   description = "Allow user to manage ECR resources"
+#   policy      = data.aws_iam_policy_document.ecr.json
+# }
 
 resource "aws_iam_user_policy_attachment" "ecr" {
   user       = "simple-web-app-usr"
