@@ -102,6 +102,11 @@ After the policies are updated, you can safely switch back to the CICD user, ens
         role-session-name: terraform-admin \
         aws-region: ${{ secrets.AWS_REGION }} \
 
+### Important commmands
+<terraform output> - to see outputs from the resource
+<Kubectl get services>
+<Kubectl get pods>
+
 ### Project cleanup
 
 - Terraform

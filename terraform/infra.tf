@@ -65,56 +65,6 @@ provider "kubernetes" {
 
 }
 
-# Kubernetes Deployment for the Express app
-# resource "kubernetes_deployment" "express_app" {
-#   metadata {
-#     name      = "express-app-deployment"
-#     namespace = "default"
-#   }
-#   spec {
-#     replicas = 2
-#     selector {
-#       match_labels = {
-#         app = "express-app"
-#       }
-#     }
-#     template {
-#       metadata {
-#         labels = {
-#           app = "express-app"
-#         }
-#       }
-#       spec {
-#         container {
-#           name  = "express-app"
-#           image = "${aws_ecr_repository.express_app_repo.repository_url}:latest" # Replace with your actual Docker image name
-#           port {
-#             container_port = 8080
-#           }
-#         }
-#       }
-#     }
-#   }
-# }
-
-# # Kubernetes Service for the Express app
-# resource "kubernetes_service" "express_app_service" {
-#   metadata {
-#     name      = "express-app-service"
-#     namespace = "default"
-#   }
-#   spec {
-#     selector = {
-#       app = "express-app"
-#     }
-#     port {
-#       port        = 80
-#       target_port = 8080
-#     }
-#     type = "LoadBalancer"
-#   }
-# }
-
 # add ecr repo to store the images we create
 
 resource "aws_ecr_repository" "express_app_repo" {

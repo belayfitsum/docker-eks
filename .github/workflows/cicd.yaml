@@ -117,15 +117,6 @@ jobs:
         run: |
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-        # docker tag $ECR_REPOSITORY:$IMAGE_TAG $REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-
-      # - name : Deploy to Eks
-      #   env:
-      #     EKS_CLUSTER_NAME: ${{ secrets.EKS_CLUSTER_NAME }}
-      #   run: | # update the kubeconfig to point to the eks cluster
-      #     aws eks update-kubeconfig --name $EKS_CLUSTER_NAME
-      #     kubectl apply -f k8s/deployment.yaml
-      #     kubectl apply -f k8s/service.yaml
 
   deploy-wf:
     name: Deploy to EKS
@@ -155,13 +146,6 @@ jobs:
         with:
           mask-password: 'false'
 
-      # - name : update the deployment 
-      #   run: |
-      #    kubectl apply -f k8s/deployment.yaml
-      #    kubectl apply -f k8s/service.yaml   
-
-        # since both jobs are in the same workflow, it can reuse the githab sha.
-        #  No need to authenticate and pull from ecr. replace the image and wait for the rollout
       - name: update the deployment image to latest build
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
