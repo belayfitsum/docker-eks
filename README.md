@@ -74,7 +74,7 @@ eksctl create cluster \
 
 # Development & Deployment Workflow
 
-- Create a feature branch and make your changes.
+- Create a feature branch[ticket numer as best prctice] and make your changes.
 
 - Push the branch to GitHub and open a pull request to merge into the main branch.
 
@@ -101,6 +101,11 @@ After the policies are updated, you can safely switch back to the CICD user, ens
         role-to-assume: ${{ secrets.AWS_ADMIN_ROLE_ARN }} \
         role-session-name: terraform-admin \
         aws-region: ${{ secrets.AWS_REGION }} \
+
+### Important commmands
+<terraform output> - to see outputs from the resource
+<Kubectl get services>
+<Kubectl get pods>
 
 ### Project cleanup
 
