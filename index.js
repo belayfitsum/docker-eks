@@ -3,7 +3,7 @@ const express = require('express');
 const app = express();
 
 app.get('/', (req, res) => {
-    res.send('Build and Deploy to EKS Project');
+    res.send('Build and Deploy to EKS Project- Flux deploying');
 });
 
 app.listen(8080, () => {
