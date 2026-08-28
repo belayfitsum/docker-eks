@@ -49,8 +49,14 @@ jobs:
     needs: build-wf
 
     steps:
+      - name: Test Flux repository access
+        env:
+          GH_TOKEN: ${{ secrets.FLUX_REPO_TOKEN }}
+        run: |
+          gh api repos/belayfitsum/fleet-infra-flux \
+             --jq '{name: .name, private: .private, default_branch: .default_branch}'
       - name: Checkout fleet-infra-flux
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           repository: belayfitsum/fleet-infra-flux
           token: ${{ secrets.FLUX_REPO_TOKEN }}
