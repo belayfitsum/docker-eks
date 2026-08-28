@@ -50,7 +50,7 @@ jobs:
 
     steps:
       - name: Checkout fleet-infra-flux
-        uses: actions/checkout@v3
+        uses: actions/checkout@v2
         with:
           repository: belayfitsum/fleet-infra-flux
           token: ${{ secrets.FLUX_REPO_TOKEN }}
