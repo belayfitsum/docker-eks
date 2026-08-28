@@ -1,4 +1,4 @@
-name: Build and deploy to Eks
+name: Build and Deploy via GitOps
 
 on:
   push:
@@ -7,150 +7,70 @@ on:
   pull_request:
     branches:
       - main
-# workflow_dispatch: # for manual trigger such as destroy jobs
 
-# Environment Variables
 env:
-  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-  AWS_ADMIN_ROLE_ARN: ${{ secrets.AWS_ADMIN_ROLE_ARN }}
-  AWS_REGION: ${{ secrets.AWS_REGION }}
-  EKS_CLUSTER_NAME: ${{ secrets.EKS_CLUSTER }}
-  S3_BUCKET: ${{ secrets.S3_BUCKET }}
+  DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+  IMAGE_NAME: ${{ secrets.DOCKERHUB_USERNAME }}/simpleweb
 
 jobs:
-  terraform-infra-wf:
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: terraform
-
-    steps:
-    - name: Checkout Code
-      uses: actions/checkout@v3
-
-    - name: Install Terraform
-      uses: hashicorp/setup-terraform@v2
-
-    - name: Configure AWS CLI
-      uses: aws-actions/configure-aws-credentials@v2
-      with:
-        aws-access-key-id: ${{ env.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ${{ env.AWS_REGION }}
-
-    - name: Assume Admin Role
-      id: assume_role
-      uses: aws-actions/configure-aws-credentials@v3
-      with:
-        role-to-assume: ${{ env.AWS_ADMIN_ROLE_ARN }}
-        role-session-name: terraform-admin
-        aws-region: ${{ env.AWS_REGION }}
-
-    - name: Initialize Terraform
-      id: init
-      run: terraform init -backend-config="bucket=$S3_BUCKET"
-
-
-    - name: Validate Terraform
-      id: validate
-      run: terraform validate
-
-    - name: Format terraform
-      run: terraform fmt -check
-      continue-on-error: true
-
-    - name: Terraform plan
-      id: plan
-      run: terraform plan -no-color -input=false -out planfile
-      continue-on-error: true
-
-    - name: Terraform plan status
-      if: steps.plan.outcome == 'failure'
-      run: exit 1
-
-    - name: Apply Terraform Changes
-      id: apply
-      run: terraform apply -auto-approve
-
-
   build-wf:
-    name: Build, tag and push to Amazon ECR
-    runs-on: ubuntu-latest # configuring the runner which executes my jobs
-    needs: terraform-infra-wf
+    name: Build, test and push to Docker Hub
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout source
-        uses: actions/checkout@v3 # telling the runner to use this action to copy my code to the runner file system
+        uses: actions/checkout@v3
 
-      - name: Install kubectl
-        uses: azure/setup-kubectl@v2.0
-        id: install
-        # running testing before building image. Only tested images are built.
       - name: Setup Node.js
         uses: actions/setup-node@v3
-      
+
       - name: Install Dependencies
         run: npm install
 
       - name: Run Tests
         run: npm test
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v2
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
         with:
-          aws-access-key-id: ${{ env.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Log in to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v2
-        with:
-          mask-password: 'false'
-
-      - name: Build and push Docker image # login to the docker CLI inside the runner
+      - name: Build and push Docker image
         env:
-          IMAGE_TAG: ${{ github.sha }} # keep this and use another image tag for simplicity
-          ECR_REPOSITORY: ${{ env.ECR_REPOSITORY }}
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }} # storing the login to ecr step ito a variable so that docker can use it to push 
-        run: |
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-
-  deploy-wf:
-    name: Deploy to EKS
-    runs-on: ubuntu-latest # each job needs own runner
-    needs: build-wf
-    steps:
-      - name: Checkout source
-        uses: actions/checkout@v3
-
-      - name: Install kubectl
-        uses: azure/setup-kubectl@v2.0
-        id: install
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v2
-        with:
-          aws-access-key-id: ${{ env.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
-      - name : update kubeconfig
-        run: |
-          aws eks update-kubeconfig --name ${{ secrets.EKS_CLUSTER_NAME }} --region ${{ secrets.AWS_REGION }}
-
-      - name: Log in to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v2
-        with:
-          mask-password: 'false'
-
-      - name: update the deployment image to latest build
-        env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: ${{ env.ECR_REPOSITORY }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          kubectl set image deployment/express-app-deployment express-app=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-          kubectl rollout status deployment/express-app-deployment
+          docker build -t $IMAGE_NAME:$IMAGE_TAG .
+          docker push $IMAGE_NAME:$IMAGE_TAG
+
+  deploy-wf:
+    name: Update fleet-infra-flux (GitOps)
+    runs-on: ubuntu-latest
+    needs: build-wf
+
+    steps:
+      - name: Checkout fleet-infra-flux
+        uses: actions/checkout@v3
+        with:
+          repository: belayfitsum/fleet-infra-flux
+          token: ${{ secrets.FLUX_REPO_TOKEN }}
+          path: fleet-infra-flux
+
+      - name: Update image tag in fleet-infra-flux
+        env:
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          cd fleet-infra-flux
+          sed -i "s|image:.*|image: $IMAGE_NAME:$IMAGE_TAG|" \
+            clusters/apps/base/express/deployment.yaml
+
+      - name: Commit and push to fleet-infra-flux
+        env:
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          cd fleet-infra-flux
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add clusters/apps/base/express/deployment.yaml
+          git commit -m "bump image to $IMAGE_TAG"
+          git push
